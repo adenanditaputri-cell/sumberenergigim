@@ -1,0 +1,1512 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Petualangan Energi Kampung Adat - Game Edukasi Kelas 3 SD</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts for Playful Typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+    <!-- Tone.js for Sound Effects -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-image: linear-gradient(to bottom, rgba(224, 242, 254, 0.85), rgba(209, 250, 229, 0.9)), url('https://i.imgur.com/mTIPFBh.jpeg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+        .font-playful {
+            font-family: 'Fredoka', sans-serif;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        /* Custom Keyframe Animations */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        .animate-float {
+            animation: float 3s ease-in-out infinite;
+        }
+        @keyframes wiggle {
+            0%, 100% { transform: rotate(-3deg); }
+            50% { transform: rotate(3deg); }
+        }
+        .animate-wiggle {
+            animation: wiggle 2s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-between overflow-x-hidden text-slate-800">
+
+    <!-- Background Music Audio Element -->
+    <audio id="bg-music" loop preload="auto">
+        <source src="https://github.com/adenanditaputri-cell/gim-music/raw/refs/heads/main/%ED%83%9C%EC%96%91%EC%9D%98_%EC%A7%88%EC%A3%BC.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        // Sound effects synthesis using Tone.js
+        let synth, polySynth;
+        let soundEnabled = true;
+
+        function initSounds() {
+            try {
+                synth = new Tone.Synth().toDestination();
+                polySynth = new Tone.PolySynth().toDestination();
+                polySynth.set({ volume: -10 });
+                synth.volume.value = -6;
+            } catch (e) {
+                console.log("Audio context initialization delayed or blocked:", e);
+            }
+        }
+
+        function playClick() {
+            if (!soundEnabled) return;
+            try {
+                if (!synth) initSounds();
+                synth.triggerAttackRelease("E5", "16n");
+            } catch(e){}
+        }
+
+        function playSuccess() {
+            if (!soundEnabled) return;
+            try {
+                if (!polySynth) initSounds();
+                const now = Tone.now();
+                polySynth.triggerAttackRelease("C5", "8n", now);
+                polySynth.triggerAttackRelease("E5", "8n", now + 0.1);
+                polySynth.triggerAttackRelease("G5", "8n", now + 0.2);
+                polySynth.triggerAttackRelease("C6", "4n", now + 0.3);
+            } catch(e){}
+        }
+
+        function playFailure() {
+            if (!soundEnabled) return;
+            try {
+                if (!synth) initSounds();
+                const now = Tone.now();
+                synth.triggerAttackRelease("G2", "8n", now);
+                synth.triggerAttackRelease("F2", "4n", now + 0.15);
+            } catch(e){}
+        }
+
+        function playJump() {
+            if (!soundEnabled) return;
+            try {
+                if (!synth) initSounds();
+                synth.triggerAttackRelease("C4", "16n");
+                setTimeout(() => {
+                    synth.triggerAttackRelease("G4", "16n");
+                }, 80);
+            } catch(e){}
+        }
+    </script>
+
+    <!-- Header/Navigation Navbar -->
+    <header class="w-full max-w-4xl mx-auto px-4 py-3 flex justify-between items-center z-10">
+        <div class="flex items-center space-x-2">
+            <span class="text-3xl">🏡</span>
+            <div>
+                <h1 class="font-playful font-extrabold text-xl md:text-2xl text-emerald-700 tracking-wide drop-shadow-sm">Kampung Energi</h1>
+                <p class="text-xs text-slate-500 font-semibold">Game Tradisional & Edukasi Energi SD Kelas 3</p>
+            </div>
+        </div>
+        <div class="flex items-center space-x-3">
+            <button onclick="toggleSound()" id="sound-btn" class="bg-white hover:bg-slate-100 border-2 border-slate-200 text-lg p-2 rounded-full shadow-sm transition active:scale-95">
+                🔊
+            </button>
+            <button onclick="showHelpModal()" class="bg-emerald-100 hover:bg-emerald-200 text-emerald-800 font-bold px-3 py-1.5 rounded-full text-sm border-2 border-emerald-300 transition active:scale-95">
+                Cara Bermain 📖
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Interactive Container -->
+    <main class="w-full max-w-4xl mx-auto px-4 flex-grow flex flex-col justify-center items-center py-4 relative z-0">
+        
+        <!-- ================= SCREEN 1: WELCOME SCREEN ================= -->
+        <section id="screen-welcome" class="w-full bg-white rounded-3xl p-6 md:p-8 shadow-xl border-4 border-emerald-400 flex flex-col items-center text-center space-y-6">
+            <div class="relative">
+                <div class="text-7xl md:text-8xl animate-float">🪁</div>
+                <span class="absolute bottom-0 right-0 text-3xl">☀️</span>
+                <span class="absolute top-0 left-0 text-3xl">💧</span>
+            </div>
+            
+            <div class="space-y-2">
+                <span class="bg-amber-100 text-amber-800 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">Permainan Edukasi Interaktif</span>
+                <h2 class="font-playful font-black text-3xl md:text-5xl text-emerald-600 leading-tight">Petualangan Energi Kampung Adat</h2>
+                <p class="text-slate-600 text-sm md:text-base max-w-lg mx-auto">
+                    Halo Sobat Cilik! Yuk, bantu karakter favoritmu berpetualang memainkan permainan tradisional sambil belajar tentang berbagai **Sumber Energi** di sekitar kita!
+                </p>
+            </div>
+
+            <!-- Form input nama & Pilih karakter -->
+            <div class="w-full max-w-md bg-emerald-50 p-5 rounded-2xl border border-emerald-200 space-y-4">
+                <div>
+                    <label class="block text-left text-sm font-bold text-slate-700 mb-1">Siapa Namamu? 👋</label>
+                    <input type="text" id="player-name" placeholder="Masukkan nama panggilanmu..." class="w-full px-4 py-2.5 rounded-xl border-2 border-slate-300 focus:border-emerald-500 focus:ring-0 text-center font-bold text-lg outline-none transition">
+                </div>
+
+                <div>
+                    <label class="block text-left text-sm font-bold text-slate-700 mb-2">Pilih Karaktermu: 🧑‍🤝‍🧑</label>
+                    <div class="grid grid-cols-2 gap-4">
+                        <!-- Karakter 1 -->
+                        <div onclick="selectCharacter('Siti')" id="char-Siti" class="bg-white border-3 border-emerald-500 rounded-2xl p-3 cursor-pointer hover:shadow-md transition transform hover:-translate-y-1 text-center relative overflow-hidden ring-4 ring-emerald-400/50">
+                            <div class="text-4xl mb-1">👧</div>
+                            <div class="font-black text-emerald-800">Siti</div>
+                            <div class="text-[10px] text-slate-500">Ceria & Suka Belajar</div>
+                        </div>
+                        <!-- Karakter 2 -->
+                        <div onclick="selectCharacter('Udin')" id="char-Udin" class="bg-white border-2 border-slate-200 rounded-2xl p-3 cursor-pointer hover:shadow-md transition transform hover:-translate-y-1 text-center relative overflow-hidden">
+                            <div class="text-4xl mb-1">👦</div>
+                            <div class="font-black text-slate-800">Udin</div>
+                            <div class="text-[10px] text-slate-500">Pemberani & Aktif</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tombol Mulai Petualangan -->
+            <button onclick="startAdventure()" class="w-full max-w-md bg-amber-500 hover:bg-amber-600 text-white font-playful font-black text-xl py-4 rounded-2xl shadow-lg border-b-4 border-amber-700 hover:border-b-2 active:border-b-0 hover:translate-y-[2px] active:translate-y-[4px] transition-all duration-75">
+                MULAI PETUALANGAN! 🚀
+            </button>
+        </section>
+
+        <!-- ================= SCREEN 2: GAME MAP ================= -->
+        <section id="screen-map" class="w-full bg-white rounded-3xl p-6 shadow-xl border-4 border-emerald-400 hidden flex-col items-center space-y-6">
+            <div class="w-full flex justify-between items-center border-b pb-3 border-emerald-100">
+                <div class="text-left">
+                    <p class="text-xs text-slate-500">Ksatria Energi:</p>
+                    <h3 class="font-bold text-lg text-emerald-800"><span id="map-player-emoji">👧</span> <span id="map-player-name">Siti</span></h3>
+                </div>
+                <div class="bg-amber-100 text-amber-800 font-black px-4 py-1.5 rounded-full text-sm flex items-center gap-1">
+                    <span>🏆 Skor Total:</span> <span id="map-total-score">0</span>
+                </div>
+            </div>
+
+            <div class="text-center max-w-lg space-y-1">
+                <h2 class="font-playful font-black text-2xl text-slate-800">Peta Kampung Adat Energi 🗺️</h2>
+                <p class="text-sm text-slate-600">Selesaikan ke-3 permainan tradisional di bawah ini untuk mendapatkan gelar **Ksatria Energi Mandiri**!</p>
+            </div>
+
+            <!-- Peta Grid Mini Games -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full py-2">
+                <!-- Game 1 Card -->
+                <div class="bg-gradient-to-br from-amber-50 to-orange-100 border-2 border-orange-300 rounded-2xl p-5 flex flex-col justify-between items-center text-center shadow-sm relative group">
+                    <div class="absolute top-3 right-3 bg-orange-200 text-orange-900 font-bold px-2 py-0.5 rounded-full text-xs">Game 1</div>
+                    <div class="text-5xl my-3 group-hover:animate-bounce">🧱</div>
+                    <div class="space-y-1">
+                        <h4 class="font-playful font-bold text-lg text-orange-800">Engklek Pintar</h4>
+                        <p class="text-xs text-slate-600">Melompati kotak engklek sembari menjawab pertanyaan seru seputar sumber energi!</p>
+                    </div>
+                    <!-- Status / Play button -->
+                    <div class="w-full mt-4" id="btn-container-game1">
+                        <button onclick="playGame1()" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded-xl shadow-md transition active:scale-95 text-sm">
+                            Mainkan Sekarang 🕹️
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Game 2 Card -->
+                <div class="bg-gradient-to-br from-sky-50 to-blue-100 border-2 border-blue-300 rounded-2xl p-5 flex flex-col justify-between items-center text-center shadow-sm relative group">
+                    <div class="absolute top-3 right-3 bg-blue-200 text-blue-900 font-bold px-2 py-0.5 rounded-full text-xs">Game 2</div>
+                    <div class="text-5xl my-3 group-hover:animate-float">🪁</div>
+                    <div class="space-y-1">
+                        <h4 class="font-playful font-bold text-lg text-blue-800">Layangan Angin</h4>
+                        <p class="text-xs text-slate-600">Gunakan tenaga angin untuk menerbangkan layangan dan kumpulkan energi ramah lingkungan!</p>
+                    </div>
+                    <!-- Status / Play button -->
+                    <div class="w-full mt-4" id="btn-container-game2">
+                        <button onclick="playGame2()" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-xl shadow-md transition active:scale-95 text-sm">
+                            Mainkan Sekarang 🕹️
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Game 3 Card -->
+                <div class="bg-gradient-to-br from-emerald-50 to-teal-100 border-2 border-teal-300 rounded-2xl p-5 flex flex-col justify-between items-center text-center shadow-sm relative group">
+                    <div class="absolute top-3 right-3 bg-teal-200 text-teal-900 font-bold px-2 py-0.5 rounded-full text-xs">Game 3</div>
+                    <div class="text-5xl my-3 group-hover:animate-wiggle">🥥</div>
+                    <div class="space-y-1">
+                        <h4 class="font-playful font-bold text-lg text-teal-800">Congklak Pemilah</h4>
+                        <p class="text-xs text-slate-600">Pisahkan energi alternatif yang tak terbatas dengan bahan bakar fosil yang bisa habis.</p>
+                    </div>
+                    <!-- Status / Play button -->
+                    <div class="w-full mt-4" id="btn-container-game3">
+                        <button onclick="playGame3()" class="w-full bg-teal-500 hover:bg-teal-600 text-white font-bold py-2 px-4 rounded-xl shadow-md transition active:scale-95 text-sm">
+                            Mainkan Sekarang 🕹️
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tombol untuk Cetak Sertifikat jika semua game sudah selesai -->
+            <div id="finish-adventure-section" class="w-full bg-emerald-50 rounded-2xl border border-emerald-200 p-4 text-center hidden">
+                <p class="text-emerald-800 font-bold text-sm mb-3">Selamat! Kamu telah menyelesaikan semua tantangan permainan tradisional!</p>
+                <button onclick="showCertificate()" class="bg-amber-500 hover:bg-amber-600 text-white font-playful font-bold text-lg py-3 px-8 rounded-xl shadow-md border-b-4 border-amber-700 hover:border-b-2 active:border-b-0 hover:translate-y-[2px] transition-all">
+                    Ambil Sertifikat Ksatria Energi 🎓🏆
+                </button>
+            </div>
+        </section>
+
+        <!-- ================= SCREEN 3: GAME 1 (ENGKLEK PINTAR) ================= -->
+        <section id="screen-game1" class="w-full bg-white rounded-3xl p-6 shadow-xl border-4 border-orange-400 hidden flex-col items-center space-y-6">
+            <!-- Header Game -->
+            <div class="w-full flex justify-between items-center border-b pb-3 border-orange-100">
+                <button onclick="backToMap()" class="text-orange-700 font-bold text-sm flex items-center hover:underline">
+                    ⬅️ Kembali ke Peta
+                </button>
+                <h3 class="font-playful font-black text-xl text-orange-600">🧱 Game 1: Engklek Pintar</h3>
+                <div class="bg-orange-100 text-orange-800 font-bold px-3 py-1 rounded-full text-sm">
+                    Skor: <span id="game1-score">0</span>
+                </div>
+            </div>
+
+            <!-- Board Area & Engklek Grid Layout -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full items-center">
+                
+                <!-- Left: Interactive Engklek Hopscotch Visual -->
+                <div class="bg-orange-50 p-4 rounded-2xl border-2 border-orange-200 flex flex-col items-center justify-center">
+                    <p class="text-xs font-bold text-orange-800 mb-2">Papan Engklek Energi</p>
+                    
+                    <!-- SVG Interactive Engklek Grid -->
+                    <div class="relative w-64 h-96 bg-amber-50 rounded-xl border border-dashed border-amber-300 p-2 flex flex-col justify-between">
+                        <!-- Square 5 (Top half-circle) -->
+                        <div id="engklek-5" class="w-full h-16 rounded-t-full border-2 border-slate-300 flex items-center justify-center font-bold text-slate-400 bg-white transition duration-300 text-sm">
+                            Sawah (Minyak Bumi)
+                        </div>
+                        
+                        <!-- Square 3 & 4 (Side by Side) -->
+                        <div class="flex justify-between w-full h-16 gap-1">
+                            <div id="engklek-3" class="w-1/2 h-full border-2 border-slate-300 flex items-center justify-center font-bold text-slate-400 bg-white transition duration-300 text-xs text-center">
+                                Kiri (Makanan)
+                            </div>
+                            <div id="engklek-4" class="w-1/2 h-full border-2 border-slate-300 flex items-center justify-center font-bold text-slate-400 bg-white transition duration-300 text-xs text-center">
+                                Kanan (Angin)
+                            </div>
+                        </div>
+
+                        <!-- Square 2 -->
+                        <div id="engklek-2" class="w-full h-16 border-2 border-slate-300 flex items-center justify-center font-bold text-slate-400 bg-white transition duration-300 text-sm">
+                            Tengah (Air)
+                        </div>
+
+                        <!-- Square 0 & 1 (Side by Side) -->
+                        <div class="flex justify-between w-full h-16 gap-1">
+                            <div id="engklek-0" class="w-1/2 h-full border-2 border-slate-300 flex items-center justify-center font-bold text-slate-400 bg-white transition duration-300 text-xs text-center">
+                                Kiri (Matahari)
+                            </div>
+                            <div id="engklek-1" class="w-1/2 h-full border-2 border-slate-300 flex items-center justify-center font-bold text-slate-400 bg-white transition duration-300 text-xs text-center">
+                                Kanan (Listrik)
+                            </div>
+                        </div>
+
+                        <!-- Player Marker (Floating Emoji) -->
+                        <div id="engklek-player-marker" class="absolute w-10 h-10 bg-amber-400 border-2 border-amber-600 rounded-full flex items-center justify-center shadow-md text-xl font-bold transition-all duration-500 ease-out z-10" style="bottom: 10px; left: calc(50% - 20px);">
+                            👧
+                        </div>
+                    </div>
+
+                    <div class="text-[11px] text-slate-500 mt-2 text-center">
+                        Jawab pertanyaan dengan benar agar Gacoan (batu lempar) melompat ke kotak berikutnya!
+                    </div>
+                </div>
+
+                <!-- Right: Active Trivia Question Card -->
+                <div id="game1-trivia-card" class="bg-gradient-to-br from-white to-amber-50 p-5 rounded-2xl border-2 border-amber-300 shadow-sm flex flex-col justify-between min-h-[300px]">
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center">
+                            <span class="bg-orange-100 text-orange-800 text-xs font-bold px-2 py-0.5 rounded-full">Lompatan Ke: <span id="game1-step-num">1</span>/6</span>
+                            <span class="text-orange-700 text-xs font-bold" id="game1-hint-category">Sinar Matahari ☀️</span>
+                        </div>
+                        
+                        <div class="min-h-[80px]">
+                            <p class="font-black text-slate-700 text-base md:text-lg" id="game1-question-text">Loading pertanyaan...</p>
+                        </div>
+
+                        <!-- Illustration Area -->
+                        <div class="w-full h-24 bg-orange-100/50 rounded-xl flex items-center justify-center text-5xl border border-orange-100" id="game1-question-emoji">
+                            ☀️
+                        </div>
+
+                        <!-- Choices Grid -->
+                        <div class="grid grid-cols-1 gap-2.5" id="game1-options-container">
+                            <!-- Options will be dynamically loaded here via JS -->
+                        </div>
+                    </div>
+                    
+                    <!-- Info Feedback -->
+                    <div id="game1-feedback" class="mt-4 p-2.5 rounded-xl text-center text-sm font-bold hidden">
+                        <!-- Feedback content -->
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ================= SCREEN 4: GAME 2 (LAYANGAN ANGIN) ================= -->
+        <section id="screen-game2" class="w-full bg-white rounded-3xl p-6 shadow-xl border-4 border-blue-400 hidden flex-col items-center space-y-4">
+            <!-- Header Game -->
+            <div class="w-full flex justify-between items-center border-b pb-3 border-blue-100">
+                <button onclick="backToMap()" class="text-blue-700 font-bold text-sm flex items-center hover:underline">
+                    ⬅️ Kembali ke Peta
+                </button>
+                <h3 class="font-playful font-black text-xl text-blue-600">🪁 Game 2: Layangan Angin</h3>
+                <div class="flex items-center space-x-3 text-sm">
+                    <div class="bg-blue-100 text-blue-800 font-bold px-2.5 py-1 rounded-full">
+                        Waktu: <span id="game2-timer">30</span>s
+                    </div>
+                    <div class="bg-amber-100 text-amber-800 font-bold px-2.5 py-1 rounded-full">
+                        Skor: <span id="game2-score">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Game Instructions -->
+            <div class="w-full bg-blue-50 p-3 rounded-2xl border border-blue-100 flex items-center space-x-3 text-xs md:text-sm text-blue-900">
+                <span class="text-xl">💡</span>
+                <p><strong>Cara Main:</strong> Gerakkan layang-layang ke atas dan ke bawah untuk menangkap <strong>Matahari (☀️) dan Air (💧)</strong>. Jangan menabrak <strong>Asap Batubara (💨)</strong> agar energimu tidak habis!</p>
+            </div>
+
+            <!-- Canvas Container -->
+            <div class="relative w-full aspect-[16/9] md:aspect-[2.4/1] bg-gradient-to-b from-sky-400 to-sky-200 rounded-2xl border-3 border-blue-300 overflow-hidden shadow-inner flex flex-col justify-end">
+                <!-- Clouds in canvas background -->
+                <div class="absolute inset-0 bg-no-repeat bg-cover pointer-events-none opacity-30"></div>
+                <canvas id="game2-canvas" class="w-full h-full block cursor-pointer"></canvas>
+
+                <!-- Touch Controls Overlay for Mobile / Touch Devices -->
+                <div class="absolute bottom-4 left-0 right-0 flex justify-center space-x-12 px-6 pointer-events-none md:hidden">
+                    <button id="touch-up-btn" class="w-14 h-14 rounded-full bg-white/80 border-2 border-blue-400 flex items-center justify-center text-2xl font-bold shadow-md pointer-events-auto active:bg-blue-200">
+                        ▲
+                    </button>
+                    <button id="touch-down-btn" class="w-14 h-14 rounded-full bg-white/80 border-2 border-blue-400 flex items-center justify-center text-2xl font-bold shadow-md pointer-events-auto active:bg-blue-200">
+                        ▼
+                    </button>
+                </div>
+            </div>
+
+            <!-- Start Game Play Overlay / Game Over Overlay inside the UI -->
+            <div class="w-full flex justify-center" id="game2-control-panel">
+                <button onclick="startGame2Logic()" id="game2-start-btn" class="bg-blue-500 hover:bg-blue-600 text-white font-playful font-bold text-lg py-3 px-8 rounded-xl shadow-md border-b-4 border-blue-700 active:border-b-0 transition-all">
+                    MULAI TERBANGKAN LAYANGAN! 🚀🪁
+                </button>
+            </div>
+        </section>
+
+        <!-- ================= SCREEN 5: GAME 3 (CONGKLAK PEMILAH) ================= -->
+        <section id="screen-game3" class="w-full bg-white rounded-3xl p-6 shadow-xl border-4 border-teal-400 hidden flex-col items-center space-y-5">
+            <!-- Header Game -->
+            <div class="w-full flex justify-between items-center border-b pb-3 border-teal-100">
+                <button onclick="backToMap()" class="text-teal-700 font-bold text-sm flex items-center hover:underline">
+                    ⬅️ Kembali ke Peta
+                </button>
+                <h3 class="font-playful font-black text-xl text-teal-600">🥥 Game 3: Congklak Pemilah</h3>
+                <div class="bg-teal-100 text-teal-800 font-bold px-3 py-1 rounded-full text-sm">
+                    Skor: <span id="game3-score">0</span>/60
+                </div>
+            </div>
+
+            <!-- Game Instructions -->
+            <div class="w-full bg-teal-50 p-3 rounded-2xl border border-teal-100 flex items-center space-x-3 text-xs md:text-sm text-teal-950">
+                <span class="text-xl">💡</span>
+                <p><strong>Misi Congklak:</strong> Pindahkan biji energi yang ada di papan bawah ke lubang induk yang sesuai! Lubang Kiri untuk <strong>Energi Terbarukan (Tak Terbatas)</strong> dan Lubang Kanan untuk <strong>Energi Tak Terbarukan (Bisa Habis)</strong>.</p>
+            </div>
+
+            <!-- Congklak Interactive Board Area -->
+            <div class="w-full flex flex-col items-center bg-amber-50 p-4 rounded-3xl border-2 border-amber-200 relative">
+                
+                <!-- Main Congklak Board Container -->
+                <div class="w-full max-w-2xl bg-amber-800 rounded-full px-8 py-6 shadow-md border-4 border-amber-950 flex justify-between items-center gap-4 relative overflow-hidden">
+                    
+                    <!-- Left Home Pit (Lumbung Terbarukan) -->
+                    <div class="flex flex-col items-center">
+                        <div id="congklak-home-left" class="w-20 h-20 md:w-24 md:h-24 bg-amber-950 rounded-full flex flex-col items-center justify-center text-white border-2 border-teal-400 relative shadow-inner">
+                            <span class="text-2xl">☀️🌬️💧</span>
+                            <span class="font-bold text-sm mt-1" id="score-home-left">0</span>
+                        </div>
+                        <span class="text-[10px] text-center font-bold text-amber-100 mt-1 max-w-[80px]">Lumbung Terbarukan</span>
+                    </div>
+
+                    <!-- Inner Small Pits (Mangkuk Anak) -->
+                    <div class="flex-grow grid grid-cols-4 gap-2 md:gap-4 justify-items-center">
+                        <!-- Pit 1 -->
+                        <div onclick="selectCongklakPit(1)" id="pit-1" class="w-12 h-12 md:w-16 md:h-16 bg-amber-950 rounded-full flex flex-col items-center justify-center cursor-pointer border border-amber-700 hover:border-yellow-400 transition-all duration-150 text-white relative shadow-inner">
+                            <span class="text-xl" id="pit-emoji-1">☀️</span>
+                            <span class="text-[9px] font-bold text-amber-200" id="pit-label-1">Matahari</span>
+                        </div>
+                        <!-- Pit 2 -->
+                        <div onclick="selectCongklakPit(2)" id="pit-2" class="w-12 h-12 md:w-16 md:h-16 bg-amber-950 rounded-full flex flex-col items-center justify-center cursor-pointer border border-amber-700 hover:border-yellow-400 transition-all duration-150 text-white relative shadow-inner">
+                            <span class="text-xl" id="pit-emoji-2">⛽</span>
+                            <span class="text-[9px] font-bold text-amber-200" id="pit-label-2">Bensin</span>
+                        </div>
+                        <!-- Pit 3 -->
+                        <div onclick="selectCongklakPit(3)" id="pit-3" class="w-12 h-12 md:w-16 md:h-16 bg-amber-950 rounded-full flex flex-col items-center justify-center cursor-pointer border border-amber-700 hover:border-yellow-400 transition-all duration-150 text-white relative shadow-inner">
+                            <span class="text-xl" id="pit-emoji-3">💨</span>
+                            <span class="text-[9px] font-bold text-amber-200" id="pit-label-3">Angin</span>
+                        </div>
+                        <!-- Pit 4 -->
+                        <div onclick="selectCongklakPit(4)" id="pit-4" class="w-12 h-12 md:w-16 md:h-16 bg-amber-950 rounded-full flex flex-col items-center justify-center cursor-pointer border border-amber-700 hover:border-yellow-400 transition-all duration-150 text-white relative shadow-inner">
+                            <span class="text-xl" id="pit-emoji-4">🪵</span>
+                            <span class="text-[9px] font-bold text-amber-200" id="pit-label-4">Batubara</span>
+                        </div>
+                    </div>
+
+                    <!-- Right Home Pit (Lumbung Tak Terbarukan) -->
+                    <div class="flex flex-col items-center">
+                        <div id="congklak-home-right" class="w-20 h-20 md:w-24 md:h-24 bg-amber-950 rounded-full flex flex-col items-center justify-center text-white border-2 border-red-400 relative shadow-inner">
+                            <span class="text-2xl">⛽🪵🛢️</span>
+                            <span class="font-bold text-sm mt-1" id="score-home-right">0</span>
+                        </div>
+                        <span class="text-[10px] text-center font-bold text-amber-100 mt-1 max-w-[80px]">Lumbung Tak Terbarukan</span>
+                    </div>
+
+                </div>
+
+                <!-- Sorting Selection Helper Modal/Area -->
+                <div id="sorting-selection-zone" class="mt-6 w-full max-w-md bg-white p-4 rounded-2xl border border-amber-100 flex flex-col items-center space-y-3 shadow-sm hidden">
+                    <p class="font-bold text-slate-700 text-sm">Pindahkan item <span id="selected-item-display" class="bg-amber-100 text-amber-800 px-2 py-1 rounded-md text-base font-black">Matahari (☀️)</span> ke lumbung mana?</p>
+                    <div class="grid grid-cols-2 gap-4 w-full">
+                        <button onclick="submitSortingCongklak('renewable')" class="bg-teal-500 hover:bg-teal-600 text-white font-bold py-2.5 px-4 rounded-xl shadow-md transition text-xs md:text-sm">
+                            🟢 Terbarukan (Tak Terbatas)
+                        </button>
+                        <button onclick="submitSortingCongklak('non_renewable')" class="bg-rose-500 hover:bg-rose-600 text-white font-bold py-2.5 px-4 rounded-xl shadow-md transition text-xs md:text-sm">
+                            🔴 Tak Terbarukan (Bisa Habis)
+                        </button>
+                    </div>
+                </div>
+
+                <div id="congklak-feedback" class="mt-4 p-2 text-sm font-bold rounded-lg text-center hidden">
+                    Hebat! Matahari adalah energi terbarukan karena akan selalu ada setiap hari! ☀️
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= SCREEN 6: CERTIFICATE ================= -->
+        <section id="screen-certificate" class="w-full bg-white rounded-3xl p-6 shadow-xl border-4 border-amber-400 hidden flex-col items-center space-y-6">
+            <h2 class="font-playful font-black text-3xl text-emerald-700 text-center">Selamat, Kamu Hebat! 🎉</h2>
+            
+            <!-- Real Certificate Card -->
+            <div id="printable-certificate" class="w-full max-w-xl bg-gradient-to-tr from-amber-50 to-orange-100 p-6 md:p-8 rounded-2xl border-8 border-double border-amber-500 text-center relative shadow-md">
+                <!-- Ribbon Badge -->
+                <div class="absolute -top-6 left-1/2 transform -translate-x-1/2 bg-amber-500 text-white rounded-full p-3 shadow-lg border-2 border-white">
+                    <span class="text-3xl">🏅</span>
+                </div>
+                
+                <div class="space-y-4 mt-4">
+                    <h4 class="font-playful font-extrabold text-xs md:text-sm tracking-widest text-amber-800 uppercase">Sertifikat Kelulusan</h4>
+                    <h3 class="font-playful font-black text-2xl md:text-3xl text-slate-800">KSATRIA ENERGI KAMPUNG ADAT</h3>
+                    <p class="text-slate-500 text-xs">Sertifikat ini dengan bangga diberikan kepada:</p>
+                    
+                    <div class="border-b-2 border-dashed border-amber-600 max-w-xs mx-auto pb-1">
+                        <span id="cert-player-name" class="font-playful font-black text-2xl text-emerald-700">Adit Pratama</span>
+                    </div>
+
+                    <p class="text-slate-600 text-xs md:text-sm max-w-md mx-auto leading-relaxed">
+                        Telah berhasil menyelesaikan semua tantangan permainan tradisional **Engklek Pintar, Layangan Angin, dan Congklak Pemilah** serta menguasai materi **Sumber Energi** pembelajaran Tematik Kelas 3 SD.
+                    </p>
+
+                    <div class="flex justify-around items-center pt-4 border-t border-amber-200">
+                        <div class="text-left">
+                            <span class="text-xs text-slate-400">Total Nilai Akumulasi:</span>
+                            <div class="font-black text-lg text-orange-600"><span id="cert-total-score">240</span> Poin</div>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-xs text-slate-400">Peringkat Prestasi:</span>
+                            <div class="font-black text-lg text-emerald-600">Sangat Hebat ⭐⭐⭐</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex flex-col sm:flex-row gap-4 w-full max-w-md">
+                <button onclick="window.print()" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-6 rounded-xl shadow-md transition flex items-center justify-center gap-2">
+                    🖨️ Cetak / Simpan PDF
+                </button>
+                <button onclick="resetGame()" class="flex-1 bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold py-3 px-6 rounded-xl shadow-md transition flex items-center justify-center gap-2">
+                    🔄 Main Lagi
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Floating Help Modal -->
+    <div id="help-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center hidden px-4">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border-4 border-emerald-400 relative">
+            <button onclick="hideHelpModal()" class="absolute top-4 right-4 text-2xl hover:scale-110 active:scale-90 transition">❌</button>
+            <h3 class="font-playful font-black text-2xl text-emerald-700 mb-4 flex items-center gap-2">📖 Panduan Kampung Energi</h3>
+            
+            <div class="space-y-4 text-sm text-slate-600 max-h-96 overflow-y-auto pr-2">
+                <div>
+                    <h4 class="font-black text-slate-800 flex items-center gap-1">🧱 1. Engklek Pintar</h4>
+                    <p class="pl-5">Lempar gacoan dan lompat ke petak berikutnya dengan menjawab kuis sumber energi. Setiap jawaban benar bernilai <strong>15 Poin</strong>.</p>
+                </div>
+                <div>
+                    <h4 class="font-black text-slate-800 flex items-center gap-1">🪁 2. Layangan Angin</h4>
+                    <p class="pl-5">Terbangkan layang-layang menggunakan energi angin. Kumpulkan ☀️ & 💧 untuk meraih skor. Hindari asap batubara 💨 agar nilai tidak berkurang.</p>
+                </div>
+                <div>
+                    <h4 class="font-black text-slate-800 flex items-center gap-1">🥥 3. Congklak Pemilah</h4>
+                    <p class="pl-5">Kelompokkan biji congklak ke dalam lumbung **Terbarukan** (Matahari, Angin, Air) atau **Tak Terbarukan** (BBM, Batubara) untuk memenangkan poin penuh!</p>
+                </div>
+            </div>
+            
+            <button onclick="hideHelpModal()" class="w-full mt-6 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl shadow-md transition">
+                Saya Siap Bermain! 👍
+            </button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="w-full max-w-4xl mx-auto px-4 py-4 text-center text-xs text-slate-400 border-t border-slate-200/50">
+        <p>© 2026 Petualangan Energi Kampung Adat. Dibuat sebagai media pembelajaran IPA/Tematik Kelas 3 SD.</p>
+    </footer>
+
+    <script>
+        // Global Game State
+        const state = {
+            playerName: "Siti",
+            character: "Siti",
+            currentScreen: "welcome",
+            totalScore: 0,
+            gamesPlayed: {
+                game1: false,
+                game2: false,
+                game3: false
+            },
+            scores: {
+                game1: 0,
+                game2: 0,
+                game3: 0
+            }
+        };
+
+        // Navigation Controllers
+        function changeScreen(screenId) {
+            playClick();
+            // Hide all screens
+            document.getElementById("screen-welcome").classList.add("hidden");
+            document.getElementById("screen-welcome").classList.remove("flex");
+            document.getElementById("screen-map").classList.add("hidden");
+            document.getElementById("screen-map").classList.remove("flex");
+            document.getElementById("screen-game1").classList.add("hidden");
+            document.getElementById("screen-game1").classList.remove("flex");
+            document.getElementById("screen-game2").classList.add("hidden");
+            document.getElementById("screen-game2").classList.remove("flex");
+            document.getElementById("screen-game3").classList.add("hidden");
+            document.getElementById("screen-game3").classList.remove("flex");
+            document.getElementById("screen-certificate").classList.add("hidden");
+            document.getElementById("screen-certificate").classList.remove("flex");
+
+            // Show current screen
+            const targetScreen = document.getElementById("screen-" + screenId);
+            targetScreen.classList.remove("hidden");
+            targetScreen.classList.add("flex");
+            
+            state.currentScreen = screenId;
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            const btn = document.getElementById("sound-btn");
+            btn.innerHTML = soundEnabled ? "🔊" : "🔇";
+            
+            const music = document.getElementById("bg-music");
+            if (music) {
+                if (soundEnabled) {
+                    music.play().catch(e => console.log("Pemutaran musik tertunda:", e));
+                } else {
+                    music.pause();
+                }
+            }
+        }
+
+        function playBgMusic() {
+            if (!soundEnabled) return;
+            const music = document.getElementById("bg-music");
+            if (music) {
+                music.volume = 0.20; // Mengatur volume agar suara narasi/efek gim tetap terdengar jelas
+                music.play().catch(e => console.log("Menunggu interaksi pengguna untuk memutar musik:", e));
+            }
+        }
+
+        function showHelpModal() {
+            playClick();
+            document.getElementById("help-modal").classList.remove("hidden");
+        }
+
+        function hideHelpModal() {
+            playClick();
+            document.getElementById("help-modal").classList.add("hidden");
+        }
+
+        // Welcome Screen Controllers
+        function selectCharacter(charName) {
+            playClick();
+            playBgMusic(); // Mulai musik saat pengguna memilih karakter
+            state.character = charName;
+            
+            const charSiti = document.getElementById("char-Siti");
+            const charUdin = document.getElementById("char-Udin");
+            
+            if (charName === "Siti") {
+                charSiti.classList.add("ring-4", "ring-emerald-400/50", "border-emerald-500");
+                charSiti.classList.remove("border-slate-200");
+                charUdin.classList.remove("ring-4", "ring-emerald-400/50", "border-emerald-500");
+                charUdin.classList.add("border-slate-200");
+            } else {
+                charUdin.classList.add("ring-4", "ring-emerald-400/50", "border-emerald-500");
+                charUdin.classList.remove("border-slate-200");
+                charSiti.classList.remove("ring-4", "ring-emerald-400/50", "border-emerald-500");
+                charSiti.classList.add("border-slate-200");
+            }
+        }
+
+        function startAdventure() {
+            const nameInput = document.getElementById("player-name").value.trim();
+            if (nameInput) {
+                state.playerName = nameInput;
+            } else {
+                state.playerName = state.character;
+            }
+
+            // Sync Player Details across views
+            document.getElementById("map-player-name").innerText = state.playerName;
+            document.getElementById("map-player-emoji").innerText = (state.character === "Siti") ? "👧" : "👦";
+            document.getElementById("engklek-player-marker").innerText = (state.character === "Siti") ? "👧" : "👦";
+
+            updateMapScreen();
+            changeScreen("map");
+            playSuccess();
+            playBgMusic(); // Pastikan musik berjalan saat petualangan dimulai
+        }
+
+        function backToMap() {
+            // Stop layangan loop if leaving Game 2 mid-game
+            if (game2LoopId) {
+                cancelAnimationFrame(game2LoopId);
+                game2LoopId = null;
+            }
+            if (game2IntervalId) {
+                clearInterval(game2IntervalId);
+            }
+
+            updateMapScreen();
+            changeScreen("map");
+        }
+
+        function updateMapScreen() {
+            // Update scores
+            state.totalScore = state.scores.game1 + state.scores.game2 + state.scores.game3;
+            document.getElementById("map-total-score").innerText = state.totalScore;
+
+            // Update Game 1 Card state
+            if (state.gamesPlayed.game1) {
+                document.getElementById("btn-container-game1").innerHTML = `
+                    <div class="space-y-1">
+                        <div class="text-xs text-emerald-600 font-bold"> Selesai! Score: ${state.scores.game1}</div>
+                        <button onclick="playGame1()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-1.5 px-4 rounded-xl border border-slate-300 text-xs transition">Main Lagi</button>
+                    </div>
+                `;
+            }
+            
+            // Update Game 2 Card state
+            if (state.gamesPlayed.game2) {
+                document.getElementById("btn-container-game2").innerHTML = `
+                    <div class="space-y-1">
+                        <div class="text-xs text-emerald-600 font-bold"> Selesai! Score: ${state.scores.game2}</div>
+                        <button onclick="playGame2()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-1.5 px-4 rounded-xl border border-slate-300 text-xs transition">Main Lagi</button>
+                    </div>
+                `;
+            }
+
+            // Update Game 3 Card state
+            if (state.gamesPlayed.game3) {
+                document.getElementById("btn-container-game3").innerHTML = `
+                    <div class="space-y-1">
+                        <div class="text-xs text-emerald-600 font-bold"> Selesai! Score: ${state.scores.game3}</div>
+                        <button onclick="playGame3()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-1.5 px-4 rounded-xl border border-slate-300 text-xs transition">Main Lagi</button>
+                    </div>
+                `;
+            }
+
+            // Check if all games are played
+            if (state.gamesPlayed.game1 && state.gamesPlayed.game2 && state.gamesPlayed.game3) {
+                document.getElementById("finish-adventure-section").classList.remove("hidden");
+            }
+        }
+
+        function showCertificate() {
+            document.getElementById("cert-player-name").innerText = state.playerName;
+            document.getElementById("cert-total-score").innerText = state.totalScore;
+            changeScreen("certificate");
+            playSuccess();
+        }
+
+        function resetGame() {
+            state.totalScore = 0;
+            state.gamesPlayed.game1 = false;
+            state.gamesPlayed.game2 = false;
+            state.gamesPlayed.game3 = false;
+            state.scores.game1 = 0;
+            state.scores.game2 = 0;
+            state.scores.game3 = 0;
+
+            // Reset Map Card buttons
+            document.getElementById("btn-container-game1").innerHTML = `
+                <button onclick="playGame1()" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded-xl shadow-md transition active:scale-95 text-sm">
+                    Mainkan Sekarang 🕹️
+                </button>
+            `;
+            document.getElementById("btn-container-game2").innerHTML = `
+                <button onclick="playGame2()" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-xl shadow-md transition active:scale-95 text-sm">
+                    Mainkan Sekarang 🕹️
+                </button>
+            `;
+            document.getElementById("btn-container-game3").innerHTML = `
+                <button onclick="playGame3()" class="w-full bg-teal-500 hover:bg-teal-600 text-white font-bold py-2 px-4 rounded-xl shadow-md transition active:scale-95 text-sm">
+                    Mainkan Sekarang 🕹️
+                </button>
+            `;
+            document.getElementById("finish-adventure-section").classList.add("hidden");
+
+            changeScreen("welcome");
+        }
+    </script>
+
+    <script>
+        // Game 1 Data (Engklek Pintar)
+        const game1Questions = [
+            {
+                step: 0,
+                category: "Sinar Matahari ☀️",
+                text: "Sinar matahari pagi hari sangat berguna bagi kita untuk menjemur pakaian. Sinar matahari menghasilkan energi...",
+                emoji: "👕☀️",
+                options: [
+                    { text: "A. Bunyi & Kimia", correct: false },
+                    { text: "B. Panas & Cahaya", correct: true },
+                    { text: "C. Gerak & Angin", correct: false }
+                ],
+                explanation: "Betul! Matahari memancarkan energi panas (untuk menjemur baju) dan energi cahaya untuk menerangi bumi! ☀️"
+            },
+            {
+                step: 1,
+                category: "Energi Listrik ⚡",
+                text: "Supaya Ibu bisa menonton acara memasak di Televisi, kita memerlukan sumber energi...",
+                emoji: "📺⚡",
+                options: [
+                    { text: "A. Listrik", correct: true },
+                    { text: "B. Air", correct: false },
+                    { text: "C. Angin", correct: false }
+                ],
+                explanation: "Tepat sekali! TV, kulkas, dan kipas angin membutuhkan energi listrik agar bisa menyala! ⚡"
+            },
+            {
+                step: 2,
+                category: "Pembangkit Air 💧",
+                text: "Aliran air sungai yang deras dapat dimanfaatkan masyarakat di desa untuk menggerakkan...",
+                emoji: "🌊🎡",
+                options: [
+                    { text: "A. Panel surya", correct: false },
+                    { text: "B. Kincir air / Turbin", correct: true },
+                    { text: "C. Kompor gas", correct: false }
+                ],
+                explanation: "Hebat! Putaran kincir air yang diputar air deras dapat membangkitkan listrik desa (PLTA)! 💧"
+            },
+            {
+                step: 3,
+                category: "Makanan Tubuh 🍎",
+                text: "Siti dan Udin butuh energi untuk berlari saat bermain engklek. Energi tubuh tersebut diperoleh dari...",
+                emoji: "🍲👦👧",
+                options: [
+                    { text: "A. Mandi air bersih", correct: false },
+                    { text: "B. Makanan dan minuman", correct: true },
+                    { text: "C. Tidur seharian", correct: false }
+                ],
+                explanation: "Sempurna! Makanan adalah sumber energi kimia bagi tubuh manusia untuk melakukan semua aktivitas! 🍎"
+            },
+            {
+                step: 4,
+                category: "Kekuatan Angin 🌬️",
+                text: "Udin ingin menerbangkan layang-layangnya tinggi sekali. Sumber energi yang membantunya adalah...",
+                emoji: "🌬️🪁",
+                options: [
+                    { text: "A. Energi matahari", correct: false },
+                    { text: "B. Energi angin (udara mengalir)", correct: true },
+                    { text: "C. Energi minyak bumi", correct: false }
+                ],
+                explanation: "Sangat betul! Tiupan angin adalah udara yang bergerak dan menghasilkan energi gerak untuk layang-layang! 🌬️"
+            },
+            {
+                step: 5,
+                category: "Bahan Bakar Fosil ⛽",
+                text: "Ayah mengendarai sepeda motor untuk pergi bekerja. Motor membutuhkan bahan bakar bensin yang berasal dari...",
+                emoji: "🛵⛽",
+                options: [
+                    { text: "A. Air sumur", correct: false },
+                    { text: "B. Air kelapa", correct: false },
+                    { text: "C. Minyak Bumi", correct: false },
+                    { text: "D. Minyak bumi di dalam bumi", correct: true }
+                ],
+                explanation: "Luar biasa! Bensin, solar, dan minyak tanah dibuat dari olahan minyak bumi yang ditambang dari perut bumi! ⛽"
+            }
+        ];
+
+        let game1CurrentStep = 0;
+        let game1LocalScore = 0;
+
+        function playGame1() {
+            game1CurrentStep = 0;
+            game1LocalScore = 0;
+            document.getElementById("game1-score").innerText = "0";
+            
+            // Highlight Engklek Grid Square visually
+            resetEngklekColors();
+            updateEngklekPlayerMarker(0);
+            loadGame1Question(0);
+            changeScreen("game1");
+        }
+
+        function resetEngklekColors() {
+            for (let i = 0; i <= 5; i++) {
+                const el = document.getElementById("engklek-" + i);
+                if (el) {
+                    el.className = "w-full border-2 border-slate-300 flex items-center justify-center font-bold text-slate-400 bg-white transition duration-300 text-sm";
+                    if (i === 3 || i === 4 || i === 0 || i === 1) {
+                        el.className = "w-1/2 h-full border-2 border-slate-300 flex items-center justify-center font-bold text-slate-400 bg-white transition duration-300 text-xs text-center";
+                    }
+                }
+            }
+        }
+
+        function updateEngklekPlayerMarker(step) {
+            const playerMarker = document.getElementById("engklek-player-marker");
+            const targetSquare = document.getElementById("engklek-" + step);
+            
+            if (targetSquare && playerMarker) {
+                // Highlight target square
+                targetSquare.classList.remove("border-slate-300", "text-slate-400", "bg-white");
+                targetSquare.classList.add("border-orange-500", "text-orange-950", "bg-orange-100", "font-black");
+                
+                // Position the marker on the board
+                const rectParent = targetSquare.parentElement.getBoundingClientRect();
+                const rectSquare = targetSquare.getBoundingClientRect();
+                
+                // Get offset within the absolute parent
+                const topOffset = rectSquare.top - rectParent.top + (rectSquare.height / 2) - 20;
+                const leftOffset = rectSquare.left - rectParent.left + (rectSquare.width / 2) - 20;
+                
+                playerMarker.style.top = `${topOffset}px`;
+                playerMarker.style.left = `${leftOffset}px`;
+            }
+        }
+
+        function loadGame1Question(stepIndex) {
+            const questionData = game1Questions[stepIndex];
+            if (!questionData) {
+                finishGame1();
+                return;
+            }
+
+            // Hide feedback
+            const feedbackBox = document.getElementById("game1-feedback");
+            feedbackBox.classList.add("hidden");
+
+            document.getElementById("game1-step-num").innerText = stepIndex + 1;
+            document.getElementById("game1-hint-category").innerText = questionData.category;
+            document.getElementById("game1-question-text").innerText = questionData.text;
+            document.getElementById("game1-question-emoji").innerText = questionData.emoji;
+
+            // Load options
+            const optionsContainer = document.getElementById("game1-options-container");
+            optionsContainer.innerHTML = "";
+
+            questionData.options.forEach((opt, idx) => {
+                const btn = document.createElement("button");
+                btn.className = "w-full text-left bg-white hover:bg-orange-50 active:bg-orange-100 border-2 border-slate-200 hover:border-orange-400 rounded-xl p-3 text-sm md:text-base font-bold transition flex justify-between items-center";
+                btn.innerHTML = `<span>${opt.text}</span> <span class="text-orange-300">➔</span>`;
+                btn.onclick = () => checkGame1Answer(idx, opt.correct, btn);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function checkGame1Answer(optionIdx, isCorrect, clickedButton) {
+            const feedbackBox = document.getElementById("game1-feedback");
+            const optionsContainer = document.getElementById("game1-options-container");
+            
+            // Disable all buttons in options container to prevent multi-clicking
+            const buttons = optionsContainer.getElementsByTagName("button");
+            for (let b of buttons) {
+                b.disabled = true;
+            }
+
+            if (isCorrect) {
+                playSuccess();
+                playJump();
+                clickedButton.classList.add("border-emerald-500", "bg-emerald-50", "text-emerald-900");
+                
+                // Add points
+                game1LocalScore += 15;
+                document.getElementById("game1-score").innerText = game1LocalScore;
+
+                feedbackBox.className = "mt-4 p-2.5 rounded-xl text-center text-sm font-bold bg-emerald-100 text-emerald-800 block";
+                feedbackBox.innerHTML = `🌟 Benar! <br> ${game1Questions[game1CurrentStep].explanation}`;
+
+                // Proceed to next step after small delay
+                setTimeout(() => {
+                    game1CurrentStep++;
+                    if (game1CurrentStep < game1Questions.length) {
+                        updateEngklekPlayerMarker(game1CurrentStep);
+                        loadGame1Question(game1CurrentStep);
+                    } else {
+                        finishGame1();
+                    }
+                }, 3000);
+
+            } else {
+                playFailure();
+                clickedButton.classList.add("border-rose-500", "bg-rose-50", "text-rose-950");
+                
+                feedbackBox.className = "mt-4 p-2.5 rounded-xl text-center text-sm font-bold bg-rose-100 text-rose-800 block";
+                feedbackBox.innerText = "❌ Kurang tepat! Coba pilih jawaban yang lain ya.";
+                
+                // Allow another try after 1.5 seconds
+                setTimeout(() => {
+                    for (let b of buttons) {
+                        b.disabled = false;
+                    }
+                    feedbackBox.classList.add("hidden");
+                }, 1500);
+            }
+        }
+
+        function finishGame1() {
+            state.gamesPlayed.game1 = true;
+            state.scores.game1 = game1LocalScore;
+            
+            // Custom dialog overlay success
+            const feedbackBox = document.getElementById("game1-feedback");
+            feedbackBox.className = "mt-4 p-4 rounded-xl text-center text-base font-bold bg-amber-100 text-amber-800 block";
+            feedbackBox.innerHTML = `🏆 Selamat! <br> Kamu berhasil menyelesaikan Engklek Pintar dan membawa pulang <strong>${game1LocalScore} Poin</strong>! <br><br> <button onclick="backToMap()" class="bg-amber-600 hover:bg-amber-700 text-white font-bold py-2 px-6 rounded-xl shadow-md transition text-sm">Kembali ke Peta Desa 🗺️</button>`;
+        }
+    </script>
+
+    <script>
+        // Game 2 Variables (Layangan Angin Canvas)
+        let canvas, ctx;
+        let game2Score = 0;
+        let game2TimeLeft = 30;
+        let game2IntervalId = null;
+        let game2LoopId = null;
+        let isGame2Running = false;
+
+        // Player & Item Physics objects
+        let playerKite = {
+            x: 80,
+            y: 100,
+            width: 50,
+            height: 50,
+            speedY: 4,
+            movingUp: false,
+            movingDown: false
+        };
+
+        let activeEnergyItems = [];
+        let itemSpawnTimer = 0;
+
+        function playGame2() {
+            canvas = document.getElementById("game2-canvas");
+            ctx = canvas.getContext("2d");
+
+            // Make sure canvas is properly sized
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+
+            // Setup Touch controls
+            setupTouchControls();
+
+            // Reset scores & overlay states
+            game2Score = 0;
+            game2TimeLeft = 30;
+            isGame2Running = false;
+            document.getElementById("game2-score").innerText = "0";
+            document.getElementById("game2-timer").innerText = "30";
+            
+            // Show Start Button Panel
+            document.getElementById("game2-control-panel").innerHTML = `
+                <button onclick="startGame2Logic()" id="game2-start-btn" class="bg-blue-500 hover:bg-blue-600 text-white font-playful font-bold text-lg py-3 px-8 rounded-xl shadow-md border-b-4 border-blue-700 active:border-b-0 transition-all">
+                    MULAI TERBANGKAN LAYANGAN! 🚀🪁
+                </button>
+            `;
+
+            // Draw initial static canvas scene
+            drawInitialScene();
+
+            changeScreen("game2");
+        }
+
+        function resizeCanvas() {
+            if (!canvas) return;
+            const container = canvas.parentElement;
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
+        }
+
+        function setupTouchControls() {
+            const upBtn = document.getElementById("touch-up-btn");
+            const downBtn = document.getElementById("touch-down-btn");
+
+            // Reset previous touch states
+            playerKite.movingUp = false;
+            playerKite.movingDown = false;
+
+            // Event Listeners for mobile interaction
+            upBtn.addEventListener("mousedown", () => { playerKite.movingUp = true; });
+            upBtn.addEventListener("mouseup", () => { playerKite.movingUp = false; });
+            upBtn.addEventListener("touchstart", (e) => { e.preventDefault(); playerKite.movingUp = true; });
+            upBtn.addEventListener("touchend", (e) => { e.preventDefault(); playerKite.movingUp = false; });
+
+            downBtn.addEventListener("mousedown", () => { playerKite.movingDown = true; });
+            downBtn.addEventListener("mouseup", () => { playerKite.movingDown = false; });
+            downBtn.addEventListener("touchstart", (e) => { e.preventDefault(); playerKite.movingDown = true; });
+            downBtn.addEventListener("touchend", (e) => { e.preventDefault(); playerKite.movingDown = false; });
+
+            // Keyboard listeners
+            window.addEventListener("keydown", handleKeyDown);
+            window.addEventListener("keyup", handleKeyUp);
+        }
+
+        function handleKeyDown(e) {
+            if (e.key === "ArrowUp") playerKite.movingUp = true;
+            if (e.key === "ArrowDown") playerKite.movingDown = true;
+        }
+
+        function handleKeyUp(e) {
+            if (e.key === "ArrowUp") playerKite.movingUp = false;
+            if (e.key === "ArrowDown") playerKite.movingDown = false;
+        }
+
+        // Draw initial setup when game starts
+        function drawInitialScene() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            // Sky gradient background
+            let gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            gradient.addColorStop(0, "#38bdf8"); // Sky light-blue
+            gradient.addColorStop(1, "#bae6fd"); // Sky very light-blue
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw Clouds decoration
+            drawCloud(100, 50, 40);
+            drawCloud(canvas.width - 200, 80, 50);
+
+            // Draw Static Kite
+            drawKite(playerKite.x, playerKite.y);
+        }
+
+        function drawCloud(cx, cy, size) {
+            ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
+            ctx.beginPath();
+            ctx.arc(cx, cy, size, 0, Math.PI * 2);
+            ctx.arc(cx + size * 0.6, cy - size * 0.2, size * 0.8, 0, Math.PI * 2);
+            ctx.arc(cx + size * 1.2, cy, size * 0.6, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        function drawKite(x, y) {
+            ctx.save();
+            ctx.translate(x, y);
+
+            // Draw Traditional Bamboo Skeleton / Diamond Body
+            ctx.fillStyle = "#fbbf24"; // Amber body
+            ctx.strokeStyle = "#b45309"; // Dark borders
+            ctx.lineWidth = 3;
+
+            ctx.beginPath();
+            ctx.moveTo(0, -25); // Top
+            ctx.lineTo(25, 0);  // Right
+            ctx.lineTo(0, 25);  // Bottom
+            ctx.lineTo(-25, 0); // Left
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+
+            // Intersecting structural frames
+            ctx.strokeStyle = "#78350f";
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(0, -25);
+            ctx.lineTo(0, 25);
+            ctx.moveTo(-25, 0);
+            ctx.lineTo(25, 0);
+            ctx.stroke();
+
+            // Long tail (traditional string ribbon)
+            ctx.strokeStyle = "#e11d48"; // Red Tail
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(0, 25);
+            ctx.bezierCurveTo(-10, 45, 10, 65, 0, 85);
+            ctx.stroke();
+
+            // Tail bows
+            ctx.fillStyle = "#e11d48";
+            ctx.beginPath();
+            ctx.arc(-5, 55, 3, 0, Math.PI*2);
+            ctx.arc(5, 75, 3, 0, Math.PI*2);
+            ctx.fill();
+
+            ctx.restore();
+        }
+
+        function spawnEnergyItem() {
+            // Types of collectibles: SUN, WATER, SMOKE (obstacle)
+            const roll = Math.random();
+            let item = {
+                x: canvas.width + 50,
+                y: Math.random() * (canvas.height - 80) + 40,
+                radius: 20,
+                speedX: Math.random() * 2 + 3 // Moves from right to left
+            };
+
+            if (roll < 0.4) {
+                item.type = "sun";
+                item.emoji = "☀️";
+                item.scoreVal = 20;
+            } else if (roll < 0.7) {
+                item.type = "water";
+                item.emoji = "💧";
+                item.scoreVal = 10;
+            } else {
+                item.type = "smoke";
+                item.emoji = "💨";
+                item.scoreVal = -15;
+            }
+
+            activeEnergyItems.push(item);
+        }
+
+        function startGame2Logic() {
+            playSuccess();
+            isGame2Running = true;
+            activeEnergyItems = [];
+            game2Score = 0;
+            game2TimeLeft = 30;
+            
+            // Adjust canvas just in case
+            resizeCanvas();
+
+            // Clear start button from panel
+            document.getElementById("game2-control-panel").innerHTML = `
+                <div class="text-blue-900 font-bold flex items-center gap-2">
+                    <span class="animate-spin text-lg">🪁</span> Layang-layang sedang mengudara! Arahkan ke atas-bawah menggunakan tombol atau panah keyboard ⌨️
+                </div>
+            `;
+
+            // Start timer interval
+            if (game2IntervalId) clearInterval(game2IntervalId);
+            game2IntervalId = setInterval(() => {
+                game2TimeLeft--;
+                document.getElementById("game2-timer").innerText = game2TimeLeft;
+
+                if (game2TimeLeft <= 0) {
+                    endGame2();
+                }
+            }, 1000);
+
+            // Start Animation Loop
+            if (game2LoopId) cancelAnimationFrame(game2LoopId);
+            gameLoop();
+        }
+
+        // Action Canvas Game Loop
+        function gameLoop() {
+            if (!isGame2Running) return;
+
+            // Update Physics
+            updateGame2();
+            
+            // Render View
+            renderGame2();
+
+            game2LoopId = requestAnimationFrame(gameLoop);
+        }
+
+        function updateGame2() {
+            // 1. Move Player Kite based on action inputs
+            if (playerKite.movingUp && playerKite.y > 40) {
+                playerKite.y -= playerKite.speedY;
+            }
+            if (playerKite.movingDown && playerKite.y < canvas.height - 40) {
+                playerKite.y += playerKite.speedY;
+            }
+
+            // 2. Spawn and move collectibles
+            itemSpawnTimer++;
+            if (itemSpawnTimer > 50) { // spawn every 50 frames
+                spawnEnergyItem();
+                itemSpawnTimer = 0;
+            }
+
+            for (let i = activeEnergyItems.length - 1; i >= 0; i--) {
+                const item = activeEnergyItems[i];
+                item.x -= item.speedX;
+
+                // Collision detection with player (simple distance-based circle collision)
+                const dx = item.x - playerKite.x;
+                const dy = item.y - playerKite.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+
+                if (dist < item.radius + 20) {
+                    // Item picked up!
+                    game2Score += item.scoreVal;
+                    if (game2Score < 0) game2Score = 0; // Don't let score be negative
+                    document.getElementById("game2-score").innerText = game2Score;
+
+                    if (item.scoreVal > 0) {
+                        playSuccess();
+                    } else {
+                        playFailure();
+                    }
+
+                    // Remove from active list
+                    activeEnergyItems.splice(i, 1);
+                    continue;
+                }
+
+                // Remove out-of-screen items
+                if (item.x < -40) {
+                    activeEnergyItems.splice(i, 1);
+                }
+            }
+        }
+
+        function renderGame2() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Sky Background
+            let gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            gradient.addColorStop(0, "#0284c7"); // Deep clear sky
+            gradient.addColorStop(1, "#38bdf8"); // Sky light-blue
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw clouds decoration
+            drawCloud(200, 70, 45);
+            drawCloud(canvas.width - 300, 100, 55);
+
+            // Draw Player Kite
+            drawKite(playerKite.x, playerKite.y);
+
+            // Draw Active Energy Items (Collectibles)
+            activeEnergyItems.forEach(item => {
+                ctx.save();
+                ctx.translate(item.x, item.y);
+
+                // Draw background aura based on type
+                ctx.fillStyle = (item.type === "smoke") ? "rgba(226, 232, 240, 0.4)" : "rgba(253, 224, 71, 0.4)";
+                ctx.beginPath();
+                ctx.arc(0, 0, item.radius + 5, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Draw emoji centered
+                ctx.font = "24px 'Nunito'";
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                ctx.fillText(item.emoji, 0, 0);
+
+                ctx.restore();
+            });
+        }
+
+        function endGame2() {
+            isGame2Running = false;
+            if (game2IntervalId) clearInterval(game2IntervalId);
+            if (game2LoopId) cancelAnimationFrame(game2LoopId);
+
+            state.gamesPlayed.game2 = true;
+            state.scores.game2 = game2Score;
+
+            playSuccess();
+
+            // Show Game Over / Score summary in the control panel
+            document.getElementById("game2-control-panel").innerHTML = `
+                <div class="bg-blue-50 border-2 border-blue-200 rounded-2xl p-4 w-full text-center space-y-3">
+                    <h4 class="font-bold text-blue-900 text-lg">🪁 Layang-layang Berhasil Mendarat!</h4>
+                    <p class="text-sm text-slate-700">Kamu berhasil memanfaatkan angin desa dan memperoleh total nilai sebesar <strong>${game2Score} Poin</strong>!</p>
+                    <button onclick="backToMap()" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2.5 px-6 rounded-xl shadow-md transition text-sm">Kembali ke Peta Desa 🗺️</button>
+                </div>
+            `;
+        }
+    </script>
+
+    <script>
+        // Game 3 (Congklak Pemilah) Variables
+        let selectedCongklakPitIndex = null;
+        let game3LocalScore = 0;
+        let sortedCount = 0;
+
+        // Content of each pit: [Pit ID, Name, Emoji, Type, Points]
+        const initialCongklakPits = {
+            1: { name: "Matahari", emoji: "☀️", type: "renewable", explanation: "Matahari selalu menyinari bumi setiap hari dan tidak akan pernah habis!" },
+            2: { name: "Bensin", emoji: "⛽", type: "non_renewable", explanation: "Bensin berasal dari fosil minyak bumi purba yang persediaannya sangat terbatas!" },
+            3: { name: "Angin", emoji: "🌬️", type: "renewable", explanation: "Udara bergerak di bumi selalu mengalir menghasilkan angin tak terbatas!" },
+            4: { name: "Batubara", emoji: "🪵", type: "non_renewable", explanation: "Batubara adalah hasil fosil kayu ratusan juta tahun lalu, jika ditambang terus akan habis!" }
+        };
+
+        // Expanded secondary set for replayability or variation when user clicks
+        const secondaryPits = [
+            { name: "Pancaran Air", emoji: "💧", type: "renewable", explanation: "Air di bumi bersirkulasi terus melalui siklus hujan, selalu ada!" },
+            { name: "Minyak Tanah", emoji: "🛢️", type: "non_renewable", explanation: "Minyak tanah merupakan hasil tambang bumi mentah yang terbatas sekali!" },
+            { name: "Panas Bumi", emoji: "🌋", type: "renewable", explanation: "Uap panas dalam gunung berapi terbarukan karena diproduksi magma bumi secara abadi!" },
+            { name: "Gas Alam / LPG", emoji: "🔥", type: "non_renewable", explanation: "Gas bumi di bawah tanah dapat habis terpakai dan tidak dapat tumbuh kembali!" }
+        ];
+
+        let currentPitsState = JSON.parse(JSON.stringify(initialCongklakPits));
+
+        function playGame3() {
+            selectedCongklakPitIndex = null;
+            game3LocalScore = 0;
+            sortedCount = 0;
+            currentPitsState = JSON.parse(JSON.stringify(initialCongklakPits));
+            
+            document.getElementById("game3-score").innerText = "0";
+            document.getElementById("score-home-left").innerText = "0";
+            document.getElementById("score-home-right").innerText = "0";
+
+            // Hide action helpers
+            document.getElementById("sorting-selection-zone").classList.add("hidden");
+            document.getElementById("congklak-feedback").classList.add("hidden");
+
+            // Populate Board pits representation
+            updateCongklakBoardDOM();
+
+            changeScreen("game3");
+        }
+
+        function updateCongklakBoardDOM() {
+            for (let i = 1; i <= 4; i++) {
+                const item = currentPitsState[i];
+                const pitElement = document.getElementById(`pit-${i}`);
+                const emojiSpan = document.getElementById(`pit-emoji-${i}`);
+                const labelSpan = document.getElementById(`pit-label-${i}`);
+
+                if (item) {
+                    emojiSpan.innerText = item.emoji;
+                    labelSpan.innerText = item.name;
+                    pitElement.classList.remove("opacity-25", "pointer-events-none");
+                } else {
+                    emojiSpan.innerText = "💨";
+                    labelSpan.innerText = "Kosong";
+                    pitElement.classList.add("opacity-25", "pointer-events-none");
+                }
+                
+                // Remove previous highlight
+                pitElement.classList.remove("border-yellow-400", "ring-4", "ring-yellow-400/50");
+            }
+        }
+
+        function selectCongklakPit(pitIndex) {
+            playClick();
+            const item = currentPitsState[pitIndex];
+            if (!item) return;
+
+            selectedCongklakPitIndex = pitIndex;
+
+            // Highlight chosen item pit
+            updateCongklakBoardDOM();
+            const chosenPit = document.getElementById(`pit-${pitIndex}`);
+            chosenPit.classList.add("border-yellow-400", "ring-4", "ring-yellow-400/50");
+
+            // Display options area
+            const selectionZone = document.getElementById("sorting-selection-zone");
+            const selectedItemDisplay = document.getElementById("selected-item-display");
+            
+            selectedItemDisplay.innerHTML = `${item.name} (${item.emoji})`;
+            selectionZone.classList.remove("hidden");
+        }
+
+        function submitSortingCongklak(categoryAnswer) {
+            if (!selectedCongklakPitIndex) return;
+
+            const item = currentPitsState[selectedCongklakPitIndex];
+            const feedbackBox = document.getElementById("congklak-feedback");
+
+            if (item.type === categoryAnswer) {
+                // Correct match!
+                playSuccess();
+                game3LocalScore += 15;
+                document.getElementById("game3-score").innerText = game3LocalScore;
+
+                // Animate into relevant Congklak Lumbung (Home Pit)
+                if (categoryAnswer === "renewable") {
+                    const currentLeftHome = parseInt(document.getElementById("score-home-left").innerText);
+                    document.getElementById("score-home-left").innerText = currentLeftHome + 1;
+                    
+                    feedbackBox.className = "mt-4 p-4 text-sm font-bold rounded-xl text-center block bg-teal-100 text-teal-900 border border-teal-200";
+                    feedbackBox.innerHTML = `🌟 Hebat! **${item.name}** berhasil dimasukkan ke lumbung Terbarukan! <br> <span class="text-xs text-slate-600 font-semibold">${item.explanation}</span>`;
+                } else {
+                    const currentRightHome = parseInt(document.getElementById("score-home-right").innerText);
+                    document.getElementById("score-home-right").innerText = currentRightHome + 1;
+
+                    feedbackBox.className = "mt-4 p-4 text-sm font-bold rounded-xl text-center block bg-rose-100 text-rose-900 border border-rose-200";
+                    feedbackBox.innerHTML = `🌟 Hebat! **${item.name}** berhasil dimasukkan ke lumbung Tak Terbarukan! <br> <span class="text-xs text-slate-600 font-semibold">${item.explanation}</span>`;
+                }
+
+                // Delete sorted item from small pit
+                delete currentPitsState[selectedCongklakPitIndex];
+                sortedCount++;
+
+                // Load next set of items in vacated pit if available
+                if (sortedCount < 6 && secondaryPits.length > 0) {
+                    const nextItem = secondaryPits.shift();
+                    currentPitsState[selectedCongklakPitIndex] = nextItem;
+                }
+
+            } else {
+                // Incorrect match
+                playFailure();
+                feedbackBox.className = "mt-4 p-4 text-sm font-bold rounded-xl text-center block bg-yellow-100 text-yellow-900 border border-yellow-200";
+                feedbackBox.innerHTML = `❌ Kurang Tepat! Coba pelajari lagi tentang **${item.name}**. Ingat, energi terbarukan tidak akan pernah habis!`;
+            }
+
+            // Hide choice zone
+            document.getElementById("sorting-selection-zone").classList.add("hidden");
+            selectedCongklakPitIndex = null;
+            updateCongklakBoardDOM();
+
+            // Check if game is complete (all 6 items sorted)
+            if (sortedCount >= 6) {
+                setTimeout(() => {
+                    finishGame3();
+                }, 4000);
+            }
+        }
+
+        function finishGame3() {
+            state.gamesPlayed.game3 = true;
+            state.scores.game3 = game3LocalScore;
+
+            const feedbackBox = document.getElementById("congklak-feedback");
+            feedbackBox.className = "mt-4 p-4 rounded-xl text-center text-base font-bold bg-teal-100 text-teal-800 block border-2 border-teal-300";
+            feedbackBox.innerHTML = `🏆 Selesai! <br> Kamu berhasil memilah seluruh biji energi ke lumbung yang pas! <br> Tambahan nilai <strong>${game3LocalScore} Poin</strong> diperoleh! <br><br> <button onclick="backToMap()" class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-2.5 px-6 rounded-xl shadow-md transition text-sm">Kembali ke Peta Desa 🗺️</button>`;
+        }
+    </script>
+</body>
+</html>
